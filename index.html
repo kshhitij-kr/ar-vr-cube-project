@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Multi-Target WebAR (Secure Production)</title>
+    <title>Multi-Target WebAR (Production Secure)</title>
 
     <!-- Privacy & Referrer Protections -->
     <meta name="referrer" content="no-referrer">
@@ -110,16 +110,26 @@
         }
       });
 
-      // Interactive Color Changer Component (Target 0)
+      // Mobile-Optimized Color Changer Component (Target 0)
       AFRAME.registerComponent('color-changer', {
         init: function () {
           const colors = ['#2196F3', '#FF5722', '#4CAF50', '#9C27B0', '#FFEB3B'];
           let colorIndex = 0;
+          let lastTriggerTime = 0;
           
-          this.el.addEventListener('click', () => {
+          const changeColor = (e) => {
+            const now = Date.now();
+            // Debounce rapid tap events (within 300ms) to prevent double-firing
+            if (now - lastTriggerTime < 300) return;
+            lastTriggerTime = now;
+            
             colorIndex = (colorIndex + 1) % colors.length;
-            this.el.setAttribute('color', colors[colorIndex]);
-          });
+            this.el.setAttribute('material', 'color', colors[colorIndex]);
+          };
+
+          // Register both click and touchstart for full mobile compatibility
+          this.el.addEventListener('click', changeColor);
+          this.el.addEventListener('touchstart', changeColor);
         }
       });
 
@@ -168,12 +178,12 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false">
 
-        <!-- Camera Setup -->
+        <!-- Camera Setup configured for precise mobile raycasting -->
         <a-camera
             position="0 0 0"
             look-controls="enabled: false"
             cursor="fuse: false; rayOrigin: mouse"
-            raycaster="far: 1000; objects: .clickable">
+            raycaster="far: 10000; objects: .clickable">
         </a-camera>
 
         <!-- TARGET 0: BLUE CUBE (Rotating, Tap-to-Change-Color) -->
